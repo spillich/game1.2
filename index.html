@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drug Tycoon</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game-container">
+    <h1>Street Drug Tycoon</h1>
+    <div id="stats">
+      <p>Cash: <span id="cash">$1000</span></p>
+      <p>Inventory: <span id="inventory">0 / 100</span> units</p>
+    </div>
+    <div id="controls">
+      <button onclick="buyDrug(1)">Buy 1</button>
+      <button onclick="buyDrug(100)">Buy 100</button>
+      <button onclick="buyDrug(1000)">Buy 1000</button>
+      <button onclick="sellDrug()">Sell</button>
+      <button onclick="endDay()">End Day</button>
+      <button onclick="upgradeStorage()">Upgrade Storage</button>
+      <button onclick="buildLab()">Build Lab</button>
+      <button onclick="upgradeLab()">Upgrade Lab</button>
+    </div>
+    <div id="log"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
