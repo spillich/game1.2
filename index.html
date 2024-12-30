@@ -12,6 +12,7 @@
     <div id="stats">
       <p>Cash: <span id="cash">$1000</span></p>
       <p>Overall Storage: <span id="inventory">0 / 100</span> units</p>
+      <p>Days Left: <span id="days-left">30</span></p>
       <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
     </div>
 
@@ -46,6 +47,15 @@
     <button onclick="endDay()">End Day</button>
     <div id="log"></div>
   </div>
+
+  <div id="final-stats" style="display: none;">
+    <h1>Final Stats</h1>
+    <div id="summary"></div>
+    <h2>Leaderboard</h2>
+    <ol id="leaderboard"></ol>
+    <button onclick="restartGame()">Play Again</button>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
