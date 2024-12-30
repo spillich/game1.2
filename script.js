@@ -3,9 +3,9 @@ let inventory = 0;
 let storageCapacity = 100;
 
 const drugs = [
-  { name: "Weed", price: randomPrice(), quantity: 0 },
-  { name: "Cocaine", price: randomPrice(), quantity: 0 },
-  { name: "Meth", price: randomPrice(), quantity: 0 }
+  { name: "Weed", price: randomPrice(), quantity: 0, lastPurchasePrice: 0 },
+  { name: "Cocaine", price: randomPrice(), quantity: 0, lastPurchasePrice: 0 },
+  { name: "Meth", price: randomPrice(), quantity: 0, lastPurchasePrice: 0 }
 ];
 
 const labs = {
@@ -35,10 +35,21 @@ function renderTables() {
   labTable.innerHTML = "";
 
   drugs.forEach(drug => {
+    const profitLoss = drug.lastPurchasePrice
+      ? ((drug.price - drug.lastPurchasePrice) / drug.lastPurchasePrice) * 100
+      : 0;
+
+    const profitLossText = drug.lastPurchasePrice
+      ? `${profitLoss > 0 ? '+' : ''}${profitLoss.toFixed(2)}%`
+      : 'N/A';
+
     const drugRow = `
       <tr>
         <td>${drug.name}</td>
         <td>$${drug.price}</td>
+        <td>${drug.quantity} units</td>
+        <td>$${drug.lastPurchasePrice || 'N/A'}</td>
+        <td>${profitLossText}</td>
         <td>
           <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
           <button onclick="buyDrug('${drug.name}', 10)">Buy 10</button>
@@ -73,6 +84,7 @@ function buyDrug(drugName, quantity) {
     cash -= cost;
     drug.quantity += quantity;
     inventory += quantity;
+    drug.lastPurchasePrice = drug.price;
     logMessage(`Bought ${quantity} units of ${drugName} for $${cost}.`);
   } else {
     logMessage("Not enough cash or storage.");
