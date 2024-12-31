@@ -9,11 +9,15 @@
 <body>
   <div id="game-container">
     <h1>Street Dealer Game</h1>
+
+    <!-- Stats Section -->
     <div id="stats">
-      <p>Cash: <span id="cash">$1000</span></p>
-      <p>Inventory: <span id="inventory">0 / 100</span></p>
+      <p><strong>Cash:</strong> <span id="cash">$1000</span></p>
+      <p><strong>Inventory:</strong> <span id="inventory">0 / 100</span></p>
       <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
     </div>
+
+    <!-- Product Table -->
     <h2>Products</h2>
     <table id="drug-table">
       <thead>
@@ -25,9 +29,11 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Rows will be dynamically populated by script.js -->
+        <!-- Dynamically populated rows -->
       </tbody>
     </table>
+
+    <!-- Labs Table -->
     <h2>Labs</h2>
     <table id="lab-table">
       <thead>
@@ -39,13 +45,17 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Rows will be dynamically populated by script.js -->
+        <!-- Dynamically populated rows -->
       </tbody>
     </table>
+
+    <!-- Game Log -->
+    <h2>Game Log</h2>
     <div id="log">
-      <!-- Game logs will appear here -->
+      <!-- Game actions will appear here -->
     </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
