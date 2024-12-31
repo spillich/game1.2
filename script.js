@@ -2,7 +2,7 @@ let cash = 1000;
 let inventory = 0;
 let storageCapacity = 100;
 let storageUpgradeCost = 500;
-let daysLeft = 30; // Set the total number of days
+let daysLeft = 30;
 let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || []; // Load leaderboard
 
 const drugs = [
@@ -17,33 +17,65 @@ const labs = {
   Meth: { count: 0, rate: 3, upgradeCost: 1500 }
 };
 
-// Random price generator
+// Generate random price
 function randomPrice() {
   return Math.floor(Math.random() * 500) + 100;
+}
+
+// Buy drug
+function buyDrug(drugName, quantity) {
+  const drug = drugs.find(d => d.name === drugName);
+  const totalCost = drug.price * quantity;
+
+  if (cash >= totalCost && inventory + quantity <= storageCapacity) {
+    cash -= totalCost;
+    drug.quantity += quantity;
+    inventory += quantity;
+    drug.lastPurchasePrice = drug.price;
+    logMessage(`Bought ${quantity} units of ${drugName} for $${totalCost}.`);
+  } else {
+    logMessage("Not enough cash or storage space.");
+  }
+  updateUI();
+}
+
+// Sell drug
+function sellDrug(drugName, quantity) {
+  const drug = drugs.find(d => d.name === drugName);
+
+  if (drug.quantity >= quantity) {
+    const revenue = drug.price * quantity;
+    cash += revenue;
+    drug.quantity -= quantity;
+    inventory -= quantity;
+    logMessage(`Sold ${quantity} units of ${drugName} for $${revenue}.`);
+  } else {
+    logMessage(`Not enough ${drugName} to sell.`);
+  }
+  updateUI();
 }
 
 // Upgrade storage
 function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
     cash -= storageUpgradeCost;
-    storageCapacity += 50; // Increase storage by 50 units
-    storageUpgradeCost += 100; // Increment the cost for the next upgrade
-    logMessage(`Storage upgraded! New capacity: ${storageCapacity} units.`);
+    storageCapacity += 50;
+    storageUpgradeCost += 100;
+    logMessage(`Storage upgraded to ${storageCapacity} units.`);
   } else {
     logMessage("Not enough cash to upgrade storage.");
   }
   updateUI();
 }
 
-// End day logic
+// End day
 function endDay() {
   if (daysLeft <= 0) {
-    logMessage("Game over! No more days left.");
     endGame();
     return;
   }
 
-  drugs.forEach(drug => (drug.price = randomPrice())); // Update prices
+  drugs.forEach(drug => (drug.price = randomPrice()));
 
   Object.keys(labs).forEach(drugName => {
     const lab = labs[drugName];
@@ -60,32 +92,19 @@ function endDay() {
   daysLeft--;
   if (daysLeft === 0) {
     endGame();
-  } else {
-    logMessage(`Day ended. ${daysLeft} days left.`);
   }
   updateUI();
 }
 
-// End game logic
+// End game
 function endGame() {
-  // Calculate stats
   const totalInventory = drugs.reduce((sum, drug) => sum + drug.quantity, 0);
   const totalLabs = Object.values(labs).reduce((sum, lab) => sum + lab.count, 0);
 
-  // Add to leaderboard
-  leaderboard.push({
-    cash,
-    totalInventory,
-    totalLabs
-  });
-
-  // Sort leaderboard by cash (descending)
+  leaderboard.push({ cash, totalInventory, totalLabs });
   leaderboard.sort((a, b) => b.cash - a.cash);
-
-  // Save leaderboard to localStorage
   localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
 
-  // Show final stats
   document.getElementById("game-container").style.display = "none";
   const summary = document.getElementById("summary");
   summary.innerHTML = `
@@ -94,7 +113,6 @@ function endGame() {
     <p>Labs Built: ${totalLabs}</p>
   `;
 
-  // Show leaderboard
   const leaderboardTable = document.querySelector("#leaderboard tbody");
   leaderboardTable.innerHTML = leaderboard
     .slice(0, 10)
@@ -129,7 +147,7 @@ function restartGame() {
 
   Object.keys(labs).forEach(drugName => {
     labs[drugName].count = 0;
-    labs[drugName].upgradeCost = 1000; // Reset upgrade costs
+    labs[drugName].upgradeCost = 1000;
   });
 
   document.getElementById("final-stats").style.display = "none";
@@ -141,7 +159,7 @@ function restartGame() {
 function logMessage(message) {
   const log = document.getElementById("log");
   log.innerHTML += `<p>${message}</p>`;
-  log.scrollTop = log.scrollHeight; // Scroll to the bottom
+  log.scrollTop = log.scrollHeight;
 }
 
 // Update UI
@@ -202,7 +220,4 @@ function renderTables() {
   });
 }
 
-// Other functions (buyDrug, sellDrug, buildLab, upgradeLab, etc.) remain unchanged
-
-// Initialize the game
 updateUI();
