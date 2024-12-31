@@ -1,3 +1,4 @@
+// Initialize variables
 let cash = 1000;
 let inventory = 0;
 let storageCapacity = 100;
@@ -82,6 +83,28 @@ function buyDrug(drugName, quantity) {
   updateUI();
 }
 
+// Buy Max Drug
+function buyMaxDrug(drugName) {
+  const drug = drugs.find(d => d.name === drugName);
+  if (!drug) return;
+
+  const maxAffordable = Math.floor(cash / drug.price);
+  const maxStorable = storageCapacity - inventory;
+  const maxQuantity = Math.min(maxAffordable, maxStorable);
+
+  if (maxQuantity > 0) {
+    const totalCost = maxQuantity * drug.price;
+    cash -= totalCost;
+    drug.quantity += maxQuantity;
+    inventory += maxQuantity;
+    drug.lastPurchasePrice = drug.price;
+    logMessage(`Bought ${maxQuantity} units of ${drugName} for $${totalCost}.`);
+  } else {
+    logMessage("Not enough cash or storage space to buy more.");
+  }
+  updateUI();
+}
+
 // Sell Drug
 function sellDrug(drugName, quantity) {
   const drug = drugs.find(d => d.name === drugName);
@@ -95,23 +118,6 @@ function sellDrug(drugName, quantity) {
     logMessage(`Sold ${quantity} units of ${drugName} for $${revenue}.`);
   } else {
     logMessage(`Not enough ${drugName} to sell.`);
-  }
-  updateUI();
-}
-
-// Sell All Drugs
-function sellAllDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) return;
-
-  if (drug.quantity > 0) {
-    const revenue = drug.price * drug.quantity;
-    cash += revenue;
-    inventory -= drug.quantity;
-    logMessage(`Sold all ${drug.quantity} units of ${drugName} for $${revenue}.`);
-    drug.quantity = 0;
-  } else {
-    logMessage(`No ${drugName} available to sell.`);
   }
   updateUI();
 }
@@ -142,8 +148,10 @@ function renderTables() {
         <td>${profitLossText}</td>
         <td>
           <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
+          <button onclick="buyDrug('${drug.name}', 10)">Buy 10</button>
+          <button onclick="buyMaxDrug('${drug.name}')">Buy Max</button>
           <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
-          <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
+          <button onclick="sellDrug('${drug.name}', 10)">Sell 10</button>
         </td>
       </tr>
     `;
@@ -179,7 +187,6 @@ function updateUI() {
   document.getElementById("cash").textContent = `$${cash}`;
   document.getElementById("inventory").textContent = `${inventory} / ${storageCapacity}`;
   document.getElementById("days-left").textContent = daysLeft;
-  document.querySelector("button[onclick='upgradeStorage()']").textContent = `Upgrade Storage ($${storageUpgradeCost})`;
   renderTables();
 }
 
