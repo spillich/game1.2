@@ -3,70 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Street Dealer</title>
+  <title>Street Dealer Game</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="game-container">
-    <h1>Street Dealer</h1>
-    <h2>Build Your Empire</h2>
+    <h1>Street Dealer Game</h1>
     <div id="stats">
       <p>Cash: <span id="cash">$1000</span></p>
-      <p>Overall Storage: <span id="inventory">0 / 100</span> units</p>
-      <p>Days Left: <span id="days-left">30</span></p>
+      <p>Inventory: <span id="inventory">0 / 100</span></p>
       <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
     </div>
-
     <h2>Products</h2>
     <table id="drug-table">
       <thead>
         <tr>
           <th>Product</th>
           <th>Price</th>
-          <th>Inventory</th>
-          <th>Last Purchase Price</th>
-          <th>Profit/Loss</th>
+          <th>Quantity</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-
-    <h2>Labs</h2>
-    <table id="lab-table">
-      <thead>
-        <tr>
-          <th>Lab</th>
-          <th>Labs Built</th>
-          <th>Production Rate</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <button onclick="endDay()">End Day</button>
     <div id="log"></div>
   </div>
-
-  <div id="final-stats" style="display: none;">
-    <h1>Final Stats</h1>
-    <div id="summary"></div>
-    <h2>Leaderboard</h2>
-    <table id="leaderboard">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Final Cash</th>
-          <th>Total Inventory</th>
-          <th>Labs Built</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button onclick="restartGame()">Play Again</button>
-  </div>
-
   <script src="script.js"></script>
 </body>
 </html>
