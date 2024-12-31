@@ -1,8 +1,8 @@
+// Initialize variables
 let cash = 1000;
 let inventory = 0;
 let storageCapacity = 100;
 let storageUpgradeCost = 500;
-let daysLeft = 30;
 
 const drugs = [
   { name: "Weed", price: randomPrice(), quantity: 0, lastPurchasePrice: 0 },
@@ -10,6 +10,7 @@ const drugs = [
   { name: "Meth", price: randomPrice(), quantity: 0, lastPurchasePrice: 0 }
 ];
 
+// Generate a random price for drugs
 function randomPrice() {
   return Math.floor(Math.random() * 500) + 100;
 }
@@ -17,43 +18,14 @@ function randomPrice() {
 // Upgrade Storage
 function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
-    cash -= storageUpgradeCost; // Deduct cash
-    storageCapacity += 50; // Increase storage capacity
-    storageUpgradeCost += 100; // Increment the cost for the next upgrade
+    cash -= storageUpgradeCost;
+    storageCapacity += 50;
+    storageUpgradeCost += 100;
     logMessage(`Storage upgraded to ${storageCapacity} units.`);
   } else {
     logMessage("Not enough cash to upgrade storage.");
   }
-  updateUI(); // Ensure UI updates dynamically
-}
-
-// Log Message
-function logMessage(message) {
-  const log = document.getElementById("log");
-  log.innerHTML += `<p>${message}</p>`;
-  log.scrollTop = log.scrollHeight;
-}
-
-// Render Drug Table
-function renderTables() {
-  const drugTable = document.querySelector("#drug-table tbody");
-  drugTable.innerHTML = "";
-
-  drugs.forEach(drug => {
-    const drugRow = `
-      <tr>
-        <td>${drug.name}</td>
-        <td>$${drug.price}</td>
-        <td>${drug.quantity} units</td>
-        <td>
-          <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
-          <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
-          <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
-        </td>
-      </tr>
-    `;
-    drugTable.innerHTML += drugRow;
-  });
+  updateUI();
 }
 
 // Buy Drug
@@ -62,11 +34,13 @@ function buyDrug(drugName, quantity) {
   if (!drug) return;
 
   const totalCost = drug.price * quantity;
+  const spaceAvailable = storageCapacity - inventory;
 
-  if (cash >= totalCost && inventory + quantity <= storageCapacity) {
+  if (cash >= totalCost && quantity <= spaceAvailable) {
     cash -= totalCost;
     drug.quantity += quantity;
     inventory += quantity;
+    drug.lastPurchasePrice = drug.price;
     logMessage(`Bought ${quantity} units of ${drugName} for $${totalCost}.`);
   } else {
     logMessage("Not enough cash or storage space.");
@@ -106,6 +80,35 @@ function sellAllDrug(drugName) {
     logMessage(`No ${drugName} available to sell.`);
   }
   updateUI();
+}
+
+// Render Tables
+function renderTables() {
+  const drugTable = document.querySelector("#drug-table tbody");
+  drugTable.innerHTML = "";
+
+  drugs.forEach(drug => {
+    const drugRow = `
+      <tr>
+        <td>${drug.name}</td>
+        <td>$${drug.price}</td>
+        <td>${drug.quantity} units</td>
+        <td>
+          <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
+          <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
+          <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
+        </td>
+      </tr>
+    `;
+    drugTable.innerHTML += drugRow;
+  });
+}
+
+// Log Message
+function logMessage(message) {
+  const log = document.getElementById("log");
+  log.innerHTML += `<p>${message}</p>`;
+  log.scrollTop = log.scrollHeight;
 }
 
 // Update UI
