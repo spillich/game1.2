@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Street Drug Tycoon</title>
+  <title>Tony's Empire</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="game-container">
-    <h1>Street Drug Tycoon</h1>
+    <h1>Tony's Empire</h1>
+    <h2>The World Is Yours</h2>
     <div id="stats">
       <p>Cash: <span id="cash">$1000</span></p>
       <p>Overall Storage: <span id="inventory">0 / 100</span> units</p>
       <p>Days Left: <span id="days-left">30</span></p>
-      <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
+      <button onclick="upgradeStorage()">Upgrade Warehouse ($500)</button>
     </div>
 
-    <h2>Drugs</h2>
+    <h2>Product Operations</h2>
     <table id="drug-table">
       <thead>
         <tr>
-          <th>Drug</th>
+          <th>Product</th>
           <th>Price</th>
           <th>Inventory</th>
           <th>Last Purchase Price</th>
@@ -31,12 +32,12 @@
       <tbody></tbody>
     </table>
 
-    <h2>Labs</h2>
+    <h2>Factories</h2>
     <table id="lab-table">
       <thead>
         <tr>
-          <th>Drug</th>
-          <th>Labs</th>
+          <th>Factory</th>
+          <th>Operations</th>
           <th>Production Rate</th>
           <th>Actions</th>
         </tr>
@@ -58,7 +59,7 @@
           <th>Rank</th>
           <th>Final Cash</th>
           <th>Total Inventory</th>
-          <th>Labs Built</th>
+          <th>Factories Built</th>
         </tr>
       </thead>
       <tbody></tbody>
