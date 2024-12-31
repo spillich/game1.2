@@ -103,23 +103,6 @@ function sellDrug(drugName, quantity) {
   updateUI();
 }
 
-// Sell All Drugs
-function sellAllDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) return;
-
-  if (drug.quantity > 0) {
-    const revenue = drug.price * drug.quantity;
-    cash += revenue;
-    inventory -= drug.quantity;
-    logMessage(`Sold all ${drug.quantity} units of ${drugName} for $${revenue}.`);
-    drug.quantity = 0;
-  } else {
-    logMessage(`No ${drugName} available to sell.`);
-  }
-  updateUI();
-}
-
 // Render Tables
 function renderTables() {
   const drugTable = document.querySelector("#drug-table tbody");
@@ -129,11 +112,21 @@ function renderTables() {
   labTable.innerHTML = "";
 
   drugs.forEach(drug => {
+    const profitLoss = drug.lastPurchasePrice
+      ? ((drug.price - drug.lastPurchasePrice) / drug.lastPurchasePrice) * 100
+      : 0;
+
+    const profitLossText = drug.lastPurchasePrice
+      ? `${profitLoss > 0 ? '+' : ''}${profitLoss.toFixed(2)}%`
+      : 'N/A';
+
     const drugRow = `
       <tr>
         <td>${drug.name}</td>
         <td>$${drug.price}</td>
         <td>${drug.quantity} units</td>
+        <td>$${drug.lastPurchasePrice || 'N/A'}</td>
+        <td>${profitLossText}</td>
         <td>
           <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
           <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
