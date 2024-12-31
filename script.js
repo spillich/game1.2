@@ -1,7 +1,7 @@
 // Initialize variables
 let cash = 1000;
 let inventory = 0;
-let storageCapacity = 100;
+let storageCapacity = 100; // Initial storage capacity
 let storageUpgradeCost = 500;
 let daysLeft = 30;
 
@@ -12,9 +12,9 @@ const drugs = [
 ];
 
 const labs = {
-  Weed: { count: 0, rate: 5, upgradeCost: 1000 },
-  Cocaine: { count: 0, rate: 2, upgradeCost: 2000 },
-  Meth: { count: 0, rate: 3, upgradeCost: 1500 }
+  Weed: { count: 0, rate: 5, upgradeCost: 1000, baseBuildCost: 1000 },
+  Cocaine: { count: 0, rate: 2, upgradeCost: 2000, baseBuildCost: 2000 },
+  Meth: { count: 0, rate: 3, upgradeCost: 1500, baseBuildCost: 1500 }
 };
 
 // Generate a random price for drugs
@@ -26,9 +26,9 @@ function randomPrice() {
 function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
     cash -= storageUpgradeCost;
-    storageCapacity += 50;
-    storageUpgradeCost += 100;
-    logMessage(`Storage upgraded to ${storageCapacity} units.`);
+    storageCapacity += 100; // Increase storage capacity by 100 each upgrade
+    storageUpgradeCost += 200; // Increment the cost of the next upgrade
+    logMessage(`Storage upgraded! New capacity: ${storageCapacity}`);
   } else {
     logMessage("Not enough cash to upgrade storage.");
   }
@@ -55,6 +55,8 @@ function endDay() {
       const drug = drugs.find(d => d.name === drugName);
       if (drug) drug.quantity += production;
       logMessage(`Produced ${production} units of ${drugName}.`);
+    } else {
+      logMessage(`Not enough storage capacity to store ${production} units of ${drugName}.`);
     }
   });
 
@@ -83,28 +85,6 @@ function buyDrug(drugName, quantity) {
   updateUI();
 }
 
-// Buy Max Drug
-function buyMaxDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) return;
-
-  const maxAffordable = Math.floor(cash / drug.price);
-  const maxStorable = storageCapacity - inventory;
-  const maxQuantity = Math.min(maxAffordable, maxStorable);
-
-  if (maxQuantity > 0) {
-    const totalCost = maxQuantity * drug.price;
-    cash -= totalCost;
-    drug.quantity += maxQuantity;
-    inventory += maxQuantity;
-    drug.lastPurchasePrice = drug.price;
-    logMessage(`Bought ${maxQuantity} units of ${drugName} for $${totalCost}.`);
-  } else {
-    logMessage("Not enough cash or storage space to buy more.");
-  }
-  updateUI();
-}
-
 // Sell Drug
 function sellDrug(drugName, quantity) {
   const drug = drugs.find(d => d.name === drugName);
@@ -122,16 +102,32 @@ function sellDrug(drugName, quantity) {
   updateUI();
 }
 
+// Sell All Drugs
+function sellAllDrug(drugName) {
+  const drug = drugs.find(d => d.name === drugName);
+  if (!drug) return;
+
+  if (drug.quantity > 0) {
+    const revenue = drug.price * drug.quantity;
+    cash += revenue;
+    inventory -= drug.quantity;
+    logMessage(`Sold all ${drug.quantity} units of ${drugName} for $${revenue}.`);
+    drug.quantity = 0;
+  } else {
+    logMessage(`No ${drugName} available to sell.`);
+  }
+  updateUI();
+}
+
 // Build Lab
 function buildLab(drugName) {
   const lab = labs[drugName];
   if (!lab) return;
 
-  if (cash >= lab.upgradeCost) {
-    cash -= lab.upgradeCost;
-    lab.count++;
-    lab.upgradeCost += 500;
-    logMessage(`Built a lab for ${drugName}. Total labs: ${lab.count}`);
+  if (cash >= lab.baseBuildCost) {
+    cash -= lab.baseBuildCost;
+    lab.count = 1; // Set count to 1 since we're building the first lab
+    logMessage(`Built a lab for ${drugName}.`);
   } else {
     logMessage("Not enough cash to build a lab.");
   }
@@ -141,12 +137,12 @@ function buildLab(drugName) {
 // Upgrade Lab
 function upgradeLab(drugName) {
   const lab = labs[drugName];
-  if (!lab) return;
+  if (!lab || lab.count === 0) return;
 
   if (cash >= lab.upgradeCost) {
     cash -= lab.upgradeCost;
     lab.rate += 2;
-    lab.upgradeCost += 1000;
+    lab.upgradeCost += 1000; // Increment upgrade cost
     logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
   } else {
     logMessage("Not enough cash to upgrade the lab.");
@@ -198,8 +194,9 @@ function renderTables() {
           <td>${lab.count}</td>
           <td>${lab.count * lab.rate} units/day</td>
           <td>
-            <button onclick="buildLab('${drug.name}')">Build Lab ($${lab.upgradeCost})</button>
-            <button onclick="upgradeLab('${drug.name}')">Upgrade Lab ($${lab.upgradeCost})</button>
+            ${lab.count === 0
+              ? `<button onclick="buildLab('${drug.name}')">Build Lab ($${lab.baseBuildCost})</button>`
+              : `<button onclick="upgradeLab('${drug.name}')">Upgrade Lab ($${lab.upgradeCost})</button>`}
           </td>
         </tr>
       `;
