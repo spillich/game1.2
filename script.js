@@ -122,6 +122,38 @@ function sellDrug(drugName, quantity) {
   updateUI();
 }
 
+// Build Lab
+function buildLab(drugName) {
+  const lab = labs[drugName];
+  if (!lab) return;
+
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.count++;
+    lab.upgradeCost += 500;
+    logMessage(`Built a lab for ${drugName}. Total labs: ${lab.count}`);
+  } else {
+    logMessage("Not enough cash to build a lab.");
+  }
+  updateUI();
+}
+
+// Upgrade Lab
+function upgradeLab(drugName) {
+  const lab = labs[drugName];
+  if (!lab) return;
+
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.rate += 2;
+    lab.upgradeCost += 1000;
+    logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
+  } else {
+    logMessage("Not enough cash to upgrade the lab.");
+  }
+  updateUI();
+}
+
 // Render Tables
 function renderTables() {
   const drugTable = document.querySelector("#drug-table tbody");
@@ -152,6 +184,7 @@ function renderTables() {
           <button onclick="buyMaxDrug('${drug.name}')">Buy Max</button>
           <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
           <button onclick="sellDrug('${drug.name}', 10)">Sell 10</button>
+          <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
         </td>
       </tr>
     `;
