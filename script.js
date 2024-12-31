@@ -115,6 +115,21 @@ function sellAllDrug(drugName) {
   updateUI();
 }
 
+// End Day Functionality
+function endDay() {
+  daysLeft--;
+  if (daysLeft <= 0) {
+    logMessage("Game Over! Your final cash is: $" + cash);
+    document.getElementById("end-day-button").disabled = true;
+    return;
+  }
+  drugs.forEach(drug => {
+    drug.price = randomPrice(); // Update drug prices
+  });
+  logMessage("Day ended. Prices updated.");
+  updateUI();
+}
+
 // Render Tables
 function renderTables() {
   const drugTable = document.querySelector("#drug-table tbody");
