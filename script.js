@@ -17,6 +17,7 @@ const labs = {
   Meth: { count: 0, rate: 3, upgradeCost: 1500 }
 };
 
+// Generate a random price for drugs
 function randomPrice() {
   return Math.floor(Math.random() * 500) + 100;
 }
@@ -63,7 +64,7 @@ function sellDrug(drugName, quantity) {
   updateUI();
 }
 
-// Sell All Drug
+// Sell All Drugs
 function sellAllDrug(drugName) {
   const drug = drugs.find(d => d.name === drugName);
   if (!drug) {
@@ -83,6 +84,44 @@ function sellAllDrug(drugName) {
   updateUI();
 }
 
+// Build Lab
+function buildLab(drugName) {
+  const lab = labs[drugName];
+  if (!lab) {
+    console.error(`Lab not found for ${drugName}`);
+    return;
+  }
+
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.count++;
+    lab.upgradeCost += 500;
+    logMessage(`Built a lab for ${drugName}. Total labs: ${lab.count}`);
+  } else {
+    logMessage("Not enough cash to build a lab.");
+  }
+  updateUI();
+}
+
+// Upgrade Lab
+function upgradeLab(drugName) {
+  const lab = labs[drugName];
+  if (!lab) {
+    console.error(`Lab not found for ${drugName}`);
+    return;
+  }
+
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.rate += 2;
+    lab.upgradeCost += 1000;
+    logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
+  } else {
+    logMessage("Not enough cash to upgrade the lab.");
+  }
+  updateUI();
+}
+
 // Upgrade Storage
 function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
@@ -96,7 +135,7 @@ function upgradeStorage() {
   updateUI();
 }
 
-// End Day
+// End Day Logic
 function endDay() {
   if (daysLeft <= 0) {
     endGame();
@@ -124,7 +163,7 @@ function endDay() {
   updateUI();
 }
 
-// End Game
+// End Game Logic
 function endGame() {
   const totalInventory = drugs.reduce((sum, drug) => sum + drug.quantity, 0);
   const totalLabs = Object.values(labs).reduce((sum, lab) => sum + lab.count, 0);
@@ -183,7 +222,7 @@ function restartGame() {
   updateUI();
 }
 
-// Log Messages
+// Log Message
 function logMessage(message) {
   const log = document.getElementById("log");
   log.innerHTML += `<p>${message}</p>`;
