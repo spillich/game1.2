@@ -1,3 +1,4 @@
+// Game Variables
 let cash = 1000;
 let inventory = 0;
 let storageCapacity = 100;
@@ -17,9 +18,47 @@ const labs = {
   Meth: { count: 0, rate: 3, upgradeCost: 1500 }
 };
 
-// Generate a random price for drugs
+// Random Price Generator
 function randomPrice() {
   return Math.floor(Math.random() * 500) + 100;
+}
+
+// Build Lab
+function buildLab(drugName) {
+  if (!labs[drugName]) {
+    console.error(`Lab not found for ${drugName}`);
+    return;
+  }
+
+  const lab = labs[drugName];
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.count++;
+    lab.upgradeCost += 500; // Increment upgrade cost for future builds
+    logMessage(`Built a lab for ${drugName}. Total labs: ${lab.count}`);
+  } else {
+    logMessage("Not enough cash to build a lab.");
+  }
+  updateUI();
+}
+
+// Upgrade Lab
+function upgradeLab(drugName) {
+  if (!labs[drugName]) {
+    console.error(`Lab not found for ${drugName}`);
+    return;
+  }
+
+  const lab = labs[drugName];
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.rate += 2; // Increase production rate
+    lab.upgradeCost += 1000; // Increment upgrade cost for future upgrades
+    logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
+  } else {
+    logMessage("Not enough cash to upgrade the lab.");
+  }
+  updateUI();
 }
 
 // Buy Drug
@@ -64,77 +103,6 @@ function sellDrug(drugName, quantity) {
   updateUI();
 }
 
-// Sell All Drugs
-function sellAllDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) {
-    console.error(`Drug not found: ${drugName}`);
-    return;
-  }
-
-  if (drug.quantity > 0) {
-    const revenue = drug.price * drug.quantity;
-    cash += revenue;
-    inventory -= drug.quantity;
-    logMessage(`Sold all ${drug.quantity} units of ${drugName} for $${revenue}.`);
-    drug.quantity = 0;
-  } else {
-    logMessage(`No ${drugName} available to sell.`);
-  }
-  updateUI();
-}
-
-// Build Lab
-function buildLab(drugName) {
-  const lab = labs[drugName];
-  if (!lab) {
-    console.error(`Lab not found for ${drugName}`);
-    return;
-  }
-
-  if (cash >= lab.upgradeCost) {
-    cash -= lab.upgradeCost;
-    lab.count++;
-    lab.upgradeCost += 500;
-    logMessage(`Built a lab for ${drugName}. Total labs: ${lab.count}`);
-  } else {
-    logMessage("Not enough cash to build a lab.");
-  }
-  updateUI();
-}
-
-// Upgrade Lab
-function upgradeLab(drugName) {
-  const lab = labs[drugName];
-  if (!lab) {
-    console.error(`Lab not found for ${drugName}`);
-    return;
-  }
-
-  if (cash >= lab.upgradeCost) {
-    cash -= lab.upgradeCost;
-    lab.rate += 2;
-    lab.upgradeCost += 1000;
-    logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
-  } else {
-    logMessage("Not enough cash to upgrade the lab.");
-  }
-  updateUI();
-}
-
-// Upgrade Storage
-function upgradeStorage() {
-  if (cash >= storageUpgradeCost) {
-    cash -= storageUpgradeCost;
-    storageCapacity += 50;
-    storageUpgradeCost += 100;
-    logMessage(`Storage upgraded to ${storageCapacity} units.`);
-  } else {
-    logMessage("Not enough cash to upgrade storage.");
-  }
-  updateUI();
-}
-
 // End Day Logic
 function endDay() {
   if (daysLeft <= 0) {
@@ -142,8 +110,10 @@ function endDay() {
     return;
   }
 
+  // Update drug prices
   drugs.forEach(drug => (drug.price = randomPrice()));
 
+  // Produce from labs
   Object.keys(labs).forEach(drugName => {
     const lab = labs[drugName];
     const production = lab.count * lab.rate;
@@ -163,81 +133,6 @@ function endDay() {
   updateUI();
 }
 
-// End Game Logic
-function endGame() {
-  const totalInventory = drugs.reduce((sum, drug) => sum + drug.quantity, 0);
-  const totalLabs = Object.values(labs).reduce((sum, lab) => sum + lab.count, 0);
-
-  leaderboard.push({ cash, totalInventory, totalLabs });
-  leaderboard.sort((a, b) => b.cash - a.cash);
-  localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
-
-  document.getElementById("game-container").style.display = "none";
-  const summary = document.getElementById("summary");
-  summary.innerHTML = `
-    <p>Final Cash: $${cash}</p>
-    <p>Total Inventory: ${totalInventory} units</p>
-    <p>Labs Built: ${totalLabs}</p>
-  `;
-
-  const leaderboardTable = document.querySelector("#leaderboard tbody");
-  leaderboardTable.innerHTML = leaderboard
-    .slice(0, 10)
-    .map(
-      (entry, index) => `
-      <tr>
-        <td>${index + 1}</td>
-        <td>$${entry.cash}</td>
-        <td>${entry.totalInventory} units</td>
-        <td>${entry.totalLabs}</td>
-      </tr>
-    `
-    )
-    .join("");
-
-  document.getElementById("final-stats").style.display = "block";
-}
-
-// Restart Game
-function restartGame() {
-  cash = 1000;
-  inventory = 0;
-  storageCapacity = 100;
-  storageUpgradeCost = 500;
-  daysLeft = 30;
-
-  drugs.forEach(drug => {
-    drug.quantity = 0;
-    drug.lastPurchasePrice = 0;
-    drug.price = randomPrice();
-  });
-
-  Object.keys(labs).forEach(drugName => {
-    labs[drugName].count = 0;
-    labs[drugName].upgradeCost = 1000;
-  });
-
-  document.getElementById("final-stats").style.display = "none";
-  document.getElementById("game-container").style.display = "block";
-  updateUI();
-}
-
-// Log Message
-function logMessage(message) {
-  const log = document.getElementById("log");
-  log.innerHTML += `<p>${message}</p>`;
-  log.scrollTop = log.scrollHeight;
-}
-
-// Update UI
-function updateUI() {
-  document.getElementById("cash").textContent = `$${cash}`;
-  document.getElementById("inventory").textContent = `${inventory} / ${storageCapacity}`;
-  document.getElementById("days-left").textContent = daysLeft;
-  document.querySelector("button[onclick='upgradeStorage()']").textContent = `Upgrade Storage ($${storageUpgradeCost})`;
-  renderTables();
-}
-
 // Render Tables
 function renderTables() {
   const drugTable = document.querySelector("#drug-table tbody");
@@ -255,6 +150,7 @@ function renderTables() {
       ? `${profitLoss > 0 ? '+' : ''}${profitLoss.toFixed(2)}%`
       : 'N/A';
 
+    // Render Drug Table Rows
     const drugRow = `
       <tr>
         <td>${drug.name}</td>
@@ -273,19 +169,40 @@ function renderTables() {
     `;
     drugTable.innerHTML += drugRow;
 
-    const labRow = `
-      <tr>
-        <td>${drug.name}</td>
-        <td>${labs[drug.name].count}</td>
-        <td>${labs[drug.name].count * labs[drug.name].rate} units/day</td>
-        <td>
-          <button onclick="buildLab('${drug.name}')">Build Lab ($${labs[drug.name].upgradeCost})</button>
-          <button onclick="upgradeLab('${drug.name}')">Upgrade Lab ($${labs[drug.name].upgradeCost})</button>
-        </td>
-      </tr>
-    `;
-    labTable.innerHTML += labRow;
+    // Render Lab Table Rows
+    const lab = labs[drug.name];
+    if (lab) {
+      const labRow = `
+        <tr>
+          <td>${drug.name}</td>
+          <td>${lab.count}</td>
+          <td>${lab.count * lab.rate} units/day</td>
+          <td>
+            <button onclick="buildLab('${drug.name}')">Build Lab ($${lab.upgradeCost})</button>
+            <button onclick="upgradeLab('${drug.name}')">Upgrade Lab ($${lab.upgradeCost})</button>
+          </td>
+        </tr>
+      `;
+      labTable.innerHTML += labRow;
+    }
   });
 }
 
+// Log Message
+function logMessage(message) {
+  const log = document.getElementById("log");
+  log.innerHTML += `<p>${message}</p>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+// Update UI
+function updateUI() {
+  document.getElementById("cash").textContent = `$${cash}`;
+  document.getElementById("inventory").textContent = `${inventory} / ${storageCapacity}`;
+  document.getElementById("days-left").textContent = daysLeft;
+  document.querySelector("button[onclick='upgradeStorage()']").textContent = `Upgrade Storage ($${storageUpgradeCost})`;
+  renderTables();
+}
+
+// Initialize Game
 updateUI();
