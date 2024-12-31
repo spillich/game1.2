@@ -26,11 +26,44 @@ function randomPrice() {
 function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
     cash -= storageUpgradeCost;
-    storageCapacity += 100; // Increase capacity by 100 with each upgrade
-    storageUpgradeCost += 500; // Increment upgrade cost
+    storageCapacity += 100;
+    storageUpgradeCost += 500;
     logMessage(`Storage upgraded to ${storageCapacity} units.`);
   } else {
     logMessage("Not enough cash to upgrade storage.");
+  }
+  updateUI();
+}
+
+// Build Lab
+function buildLab(drugName) {
+  const lab = labs[drugName];
+  if (!lab) return;
+
+  if (cash >= lab.baseBuildCost && lab.count === 0) {
+    cash -= lab.baseBuildCost;
+    lab.count = 1;
+    logMessage(`Built a lab for ${drugName}. Production starts at ${lab.rate} units/day.`);
+  } else if (lab.count > 0) {
+    logMessage(`Lab for ${drugName} already exists.`);
+  } else {
+    logMessage("Not enough cash to build the lab.");
+  }
+  updateUI();
+}
+
+// Upgrade Lab
+function upgradeLab(drugName) {
+  const lab = labs[drugName];
+  if (!lab) return;
+
+  if (cash >= lab.upgradeCost) {
+    cash -= lab.upgradeCost;
+    lab.upgradeCost += 1000;
+    lab.rate += 5;
+    logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
+  } else {
+    logMessage("Not enough cash to upgrade the lab.");
   }
   updateUI();
 }
@@ -57,30 +90,6 @@ function buyDrug(drugName, quantity) {
   updateUI();
 }
 
-// Buy Max Drug
-function buyMaxDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) return;
-
-  const maxAffordable = Math.floor(cash / drug.price); // How many units the player can afford
-  const maxStorable = storageCapacity - inventory; // How many units can fit in storage
-  const maxQuantity = Math.min(maxAffordable, maxStorable); // The smaller of the two limits
-
-  if (maxQuantity > 0) {
-    const totalCost = maxQuantity * drug.price;
-    cash -= totalCost;
-    drug.quantity += maxQuantity;
-    inventory += maxQuantity;
-    drug.lastPurchasePrice = drug.price;
-    logMessage(`Bought ${maxQuantity} units of ${drugName} for $${totalCost}.`);
-  } else if (maxStorable <= 0) {
-    logMessage("Not enough storage space for any purchase.");
-  } else {
-    logMessage("Not enough cash to buy any units.");
-  }
-  updateUI();
-}
-
 // Sell Drug
 function sellDrug(drugName, quantity) {
   const drug = drugs.find(d => d.name === drugName);
@@ -98,24 +107,7 @@ function sellDrug(drugName, quantity) {
   updateUI();
 }
 
-// Sell All Drugs
-function sellAllDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) return;
-
-  if (drug.quantity > 0) {
-    const revenue = drug.price * drug.quantity;
-    cash += revenue;
-    inventory -= drug.quantity;
-    logMessage(`Sold all ${drug.quantity} units of ${drugName} for $${revenue}.`);
-    drug.quantity = 0;
-  } else {
-    logMessage(`No ${drugName} available to sell.`);
-  }
-  updateUI();
-}
-
-// End Day Functionality
+// End Day
 function endDay() {
   daysLeft--;
   if (daysLeft <= 0) {
@@ -124,7 +116,7 @@ function endDay() {
     return;
   }
   drugs.forEach(drug => {
-    drug.price = randomPrice(); // Update drug prices
+    drug.price = randomPrice();
   });
   logMessage("Day ended. Prices updated.");
   updateUI();
@@ -160,7 +152,6 @@ function renderTables() {
           <button onclick="buyMaxDrug('${drug.name}')">Buy Max</button>
           <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
           <button onclick="sellDrug('${drug.name}', 10)">Sell 10</button>
-          <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
         </td>
       </tr>
     `;
