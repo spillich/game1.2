@@ -17,7 +17,7 @@
       <p><strong>Days Remaining:</strong> <span id="days-left">30</span></p>
       <div id="buttons">
         <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
-        <button onclick="endDay()">End Day</button>
+        <button id="end-day-button" onclick="endDay()">End Day</button>
       </div>
     </div>
 
@@ -29,6 +29,8 @@
           <th>Product</th>
           <th>Price</th>
           <th>Quantity</th>
+          <th>Last Purchase Price</th>
+          <th>Profit/Loss (%)</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -60,7 +62,6 @@
     </div>
   </div>
 
-  <!-- Include Script -->
   <script src="script.js"></script>
 </body>
 </html>
