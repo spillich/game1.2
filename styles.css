@@ -1,8 +1,8 @@
-/* General Styling */
+/* General Dark Mode Styling */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f9;
-  color: #333;
+  background-color: #121212;
+  color: #e0e0e0;
   margin: 0;
   padding: 20px;
 }
@@ -10,14 +10,15 @@ body {
 #game-container {
   max-width: 800px;
   margin: auto;
-  background: #fff;
+  background: #1e1e1e;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 h1, h2 {
   text-align: center;
+  color: #ffffff;
 }
 
 #stats {
@@ -26,28 +27,27 @@ h1, h2 {
   gap: 10px;
   margin-bottom: 20px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #333;
   border-radius: 4px;
-  background: #e8e8e8;
+  background: #2e2e2e;
 }
 
 #buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
 }
 
 button {
   padding: 10px 15px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #6200ea;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #3700b3;
 }
 
 table {
@@ -57,26 +57,25 @@ table {
 }
 
 table th, table td {
-  border: 1px solid #ccc;
+  border: 1px solid #333;
   padding: 10px;
   text-align: center;
+  background: #1e1e1e;
 }
 
 table th {
-  background-color: #f2f2f2;
+  background-color: #2e2e2e;
+  color: #ffffff;
 }
 
 #log {
   margin-top: 20px;
   padding: 10px;
-  background: #e9ecef;
-  border: 1px solid #ccc;
+  background: #2e2e2e;
+  border: 1px solid #333;
   border-radius: 4px;
   max-height: 200px;
   overflow-y: auto;
   font-size: 14px;
-}
-
-#log p {
-  margin: 5px 0;
+  color: #ffffff;
 }
