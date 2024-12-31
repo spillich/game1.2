@@ -3,6 +3,7 @@ let cash = 1000;
 let inventory = 0;
 let storageCapacity = 100;
 let storageUpgradeCost = 500;
+let daysLeft = 30;
 
 const drugs = [
   { name: "Weed", price: randomPrice(), quantity: 0, lastPurchasePrice: 0 },
@@ -34,6 +35,37 @@ function upgradeStorage() {
   updateUI();
 }
 
+// End Day
+function endDay() {
+  if (daysLeft <= 0) {
+    logMessage("Game over! No more days left.");
+    return;
+  }
+
+  // Update drug prices
+  drugs.forEach(drug => {
+    drug.price = randomPrice();
+  });
+
+  // Produce drugs in labs
+  Object.keys(labs).forEach(drugName => {
+    const lab = labs[drugName];
+    const production = lab.count * lab.rate;
+
+    if (inventory + production <= storageCapacity) {
+      inventory += production;
+      const drug = drugs.find(d => d.name === drugName);
+      if (drug) drug.quantity += production;
+      logMessage(`Produced ${production} units of ${drugName}.`);
+    }
+  });
+
+  // Decrease days remaining
+  daysLeft--;
+  logMessage(`Day ended. ${daysLeft} days remaining.`);
+  updateUI();
+}
+
 // Buy Drug
 function buyDrug(drugName, quantity) {
   const drug = drugs.find(d => d.name === drugName);
@@ -50,27 +82,6 @@ function buyDrug(drugName, quantity) {
     logMessage(`Bought ${quantity} units of ${drugName} for $${totalCost}.`);
   } else {
     logMessage("Not enough cash or storage space.");
-  }
-  updateUI();
-}
-
-// Buy Max
-function buyMaxDrug(drugName) {
-  const drug = drugs.find(d => d.name === drugName);
-  if (!drug) return;
-
-  const maxAffordable = Math.floor(cash / drug.price);
-  const maxStorable = storageCapacity - inventory;
-  const maxQuantity = Math.min(maxAffordable, maxStorable);
-
-  if (maxQuantity > 0) {
-    const totalCost = maxQuantity * drug.price;
-    cash -= totalCost;
-    drug.quantity += maxQuantity;
-    inventory += maxQuantity;
-    logMessage(`Bought ${maxQuantity} units of ${drugName} for $${totalCost}.`);
-  } else {
-    logMessage("Not enough cash or storage space to buy more.");
   }
   updateUI();
 }
@@ -109,61 +120,6 @@ function sellAllDrug(drugName) {
   updateUI();
 }
 
-// Build Lab
-function buildLab(drugName) {
-  const lab = labs[drugName];
-  if (!lab) return;
-
-  if (cash >= lab.upgradeCost) {
-    cash -= lab.upgradeCost;
-    lab.count++;
-    lab.upgradeCost += 500; // Increment future cost
-    logMessage(`Built a lab for ${drugName}. Total labs: ${lab.count}`);
-  } else {
-    logMessage("Not enough cash to build a lab.");
-  }
-  updateUI();
-}
-
-// Upgrade Lab
-function upgradeLab(drugName) {
-  const lab = labs[drugName];
-  if (!lab) return;
-
-  if (cash >= lab.upgradeCost) {
-    cash -= lab.upgradeCost;
-    lab.rate += 2; // Increase production rate
-    lab.upgradeCost += 1000; // Increment future cost
-    logMessage(`Upgraded lab for ${drugName}. New rate: ${lab.rate} units/day.`);
-  } else {
-    logMessage("Not enough cash to upgrade the lab.");
-  }
-  updateUI();
-}
-
-// End Day
-function endDay() {
-  // Update drug prices
-  drugs.forEach(drug => {
-    drug.price = randomPrice();
-  });
-
-  // Produce from labs
-  Object.keys(labs).forEach(drugName => {
-    const lab = labs[drugName];
-    const production = lab.count * lab.rate;
-
-    if (inventory + production <= storageCapacity) {
-      inventory += production;
-      const drug = drugs.find(d => d.name === drugName);
-      if (drug) drug.quantity += production;
-      logMessage(`Produced ${production} units of ${drugName}.`);
-    }
-  });
-
-  updateUI();
-}
-
 // Render Tables
 function renderTables() {
   const drugTable = document.querySelector("#drug-table tbody");
@@ -180,10 +136,7 @@ function renderTables() {
         <td>${drug.quantity} units</td>
         <td>
           <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
-          <button onclick="buyDrug('${drug.name}', 10)">Buy 10</button>
-          <button onclick="buyMaxDrug('${drug.name}')">Buy Max</button>
           <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
-          <button onclick="sellDrug('${drug.name}', 10)">Sell 10</button>
           <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
         </td>
       </tr>
@@ -219,6 +172,7 @@ function logMessage(message) {
 function updateUI() {
   document.getElementById("cash").textContent = `$${cash}`;
   document.getElementById("inventory").textContent = `${inventory} / ${storageCapacity}`;
+  document.getElementById("days-left").textContent = daysLeft;
   document.querySelector("button[onclick='upgradeStorage()']").textContent = `Upgrade Storage ($${storageUpgradeCost})`;
   renderTables();
 }
