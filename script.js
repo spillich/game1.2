@@ -1,7 +1,7 @@
 // Initialize variables
 let cash = 1000;
 let inventory = 0;
-let storageCapacity = 100; // Initial storage capacity
+let storageCapacity = 100;
 let storageUpgradeCost = 500;
 let daysLeft = 30;
 
@@ -26,42 +26,12 @@ function randomPrice() {
 function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
     cash -= storageUpgradeCost;
-    storageCapacity += 100; // Increase storage capacity by 100 each upgrade
-    storageUpgradeCost += 200; // Increment the cost of the next upgrade
-    logMessage(`Storage upgraded! New capacity: ${storageCapacity}`);
+    storageCapacity += 100; // Increase capacity by 100 with each upgrade
+    storageUpgradeCost += 500; // Increment upgrade cost
+    logMessage(`Storage upgraded to ${storageCapacity} units.`);
   } else {
     logMessage("Not enough cash to upgrade storage.");
   }
-  updateUI();
-}
-
-// End Day
-function endDay() {
-  if (daysLeft <= 0) {
-    logMessage("Game over! No more days left.");
-    return;
-  }
-
-  drugs.forEach(drug => {
-    drug.price = randomPrice();
-  });
-
-  Object.keys(labs).forEach(drugName => {
-    const lab = labs[drugName];
-    const production = lab.count * lab.rate;
-
-    if (inventory + production <= storageCapacity) {
-      inventory += production;
-      const drug = drugs.find(d => d.name === drugName);
-      if (drug) drug.quantity += production;
-      logMessage(`Produced ${production} units of ${drugName}.`);
-    } else {
-      logMessage(`Not enough storage capacity to store ${production} units of ${drugName}.`);
-    }
-  });
-
-  daysLeft--;
-  logMessage(`Day ended. ${daysLeft} days remaining.`);
   updateUI();
 }
 
@@ -79,8 +49,34 @@ function buyDrug(drugName, quantity) {
     inventory += quantity;
     drug.lastPurchasePrice = drug.price;
     logMessage(`Bought ${quantity} units of ${drugName} for $${totalCost}.`);
+  } else if (quantity > spaceAvailable) {
+    logMessage("Not enough storage space for this purchase.");
   } else {
-    logMessage("Not enough cash or storage space.");
+    logMessage("Not enough cash to buy this quantity.");
+  }
+  updateUI();
+}
+
+// Buy Max Drug
+function buyMaxDrug(drugName) {
+  const drug = drugs.find(d => d.name === drugName);
+  if (!drug) return;
+
+  const maxAffordable = Math.floor(cash / drug.price); // How many units the player can afford
+  const maxStorable = storageCapacity - inventory; // How many units can fit in storage
+  const maxQuantity = Math.min(maxAffordable, maxStorable); // The smaller of the two limits
+
+  if (maxQuantity > 0) {
+    const totalCost = maxQuantity * drug.price;
+    cash -= totalCost;
+    drug.quantity += maxQuantity;
+    inventory += maxQuantity;
+    drug.lastPurchasePrice = drug.price;
+    logMessage(`Bought ${maxQuantity} units of ${drugName} for $${totalCost}.`);
+  } else if (maxStorable <= 0) {
+    logMessage("Not enough storage space for any purchase.");
+  } else {
+    logMessage("Not enough cash to buy any units.");
   }
   updateUI();
 }
@@ -115,37 +111,6 @@ function sellAllDrug(drugName) {
     drug.quantity = 0;
   } else {
     logMessage(`No ${drugName} available to sell.`);
-  }
-  updateUI();
-}
-
-// Build Lab
-function buildLab(drugName) {
-  const lab = labs[drugName];
-  if (!lab) return;
-
-  if (cash >= lab.baseBuildCost) {
-    cash -= lab.baseBuildCost;
-    lab.count = 1; // Set count to 1 since we're building the first lab
-    logMessage(`Built a lab for ${drugName}.`);
-  } else {
-    logMessage("Not enough cash to build a lab.");
-  }
-  updateUI();
-}
-
-// Upgrade Lab
-function upgradeLab(drugName) {
-  const lab = labs[drugName];
-  if (!lab || lab.count === 0) return;
-
-  if (cash >= lab.upgradeCost) {
-    cash -= lab.upgradeCost;
-    lab.rate += 2;
-    lab.upgradeCost += 1000; // Increment upgrade cost
-    logMessage(`Upgraded lab for ${drugName}. New production rate: ${lab.rate} units/day.`);
-  } else {
-    logMessage("Not enough cash to upgrade the lab.");
   }
   updateUI();
 }
