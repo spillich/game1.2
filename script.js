@@ -1,4 +1,3 @@
-// Initialize variables
 let cash = 1000;
 let inventory = 0;
 let storageCapacity = 100;
@@ -42,12 +41,10 @@ function endDay() {
     return;
   }
 
-  // Update drug prices
   drugs.forEach(drug => {
     drug.price = randomPrice();
   });
 
-  // Produce drugs in labs
   Object.keys(labs).forEach(drugName => {
     const lab = labs[drugName];
     const production = lab.count * lab.rate;
@@ -60,7 +57,6 @@ function endDay() {
     }
   });
 
-  // Decrease days remaining
   daysLeft--;
   logMessage(`Day ended. ${daysLeft} days remaining.`);
   updateUI();
@@ -99,6 +95,23 @@ function sellDrug(drugName, quantity) {
     logMessage(`Sold ${quantity} units of ${drugName} for $${revenue}.`);
   } else {
     logMessage(`Not enough ${drugName} to sell.`);
+  }
+  updateUI();
+}
+
+// Sell All Drugs
+function sellAllDrug(drugName) {
+  const drug = drugs.find(d => d.name === drugName);
+  if (!drug) return;
+
+  if (drug.quantity > 0) {
+    const revenue = drug.price * drug.quantity;
+    cash += revenue;
+    inventory -= drug.quantity;
+    logMessage(`Sold all ${drug.quantity} units of ${drugName} for $${revenue}.`);
+    drug.quantity = 0;
+  } else {
+    logMessage(`No ${drugName} available to sell.`);
   }
   updateUI();
 }
