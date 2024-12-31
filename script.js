@@ -156,9 +156,34 @@ function endDay() {
     document.getElementById("end-day-button").disabled = true;
     return;
   }
+
+  // Update drug prices
   drugs.forEach(drug => {
     drug.price = randomPrice();
   });
+
+  // Add lab production
+  Object.keys(labs).forEach(drugName => {
+    const lab = labs[drugName];
+    const drug = drugs.find(d => d.name === drugName);
+    if (!lab || !drug) return;
+
+    const production = lab.count * lab.rate;
+    const spaceAvailable = storageCapacity - inventory;
+
+    if (spaceAvailable >= production) {
+      drug.quantity += production;
+      inventory += production;
+      logMessage(`Produced ${production} units of ${drugName} from labs.`);
+    } else if (spaceAvailable > 0) {
+      drug.quantity += spaceAvailable;
+      inventory += spaceAvailable;
+      logMessage(`Produced only ${spaceAvailable} units of ${drugName} due to storage limits.`);
+    } else {
+      logMessage(`No storage available to produce ${drugName}.`);
+    }
+  });
+
   logMessage("Day ended. Prices updated.");
   updateUI();
 }
