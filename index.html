@@ -15,8 +15,10 @@
       <p><strong>Cash:</strong> <span id="cash">$1000</span></p>
       <p><strong>Inventory:</strong> <span id="inventory">0 / 100</span></p>
       <p><strong>Days Remaining:</strong> <span id="days-left">30</span></p>
-      <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
-      <button onclick="endDay()">End Day</button>
+      <div id="buttons">
+        <button onclick="upgradeStorage()">Upgrade Storage ($500)</button>
+        <button onclick="endDay()">End Day</button>
+      </div>
     </div>
 
     <!-- Product Table -->
@@ -31,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Dynamically populated rows -->
+        <!-- Rows will be dynamically populated by script.js -->
       </tbody>
     </table>
 
@@ -47,7 +49,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Dynamically populated rows -->
+        <!-- Rows will be dynamically populated by script.js -->
       </tbody>
     </table>
 
@@ -58,6 +60,7 @@
     </div>
   </div>
 
+  <!-- Include Script -->
   <script src="script.js"></script>
 </body>
 </html>
