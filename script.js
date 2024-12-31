@@ -27,11 +27,12 @@ function upgradeStorage() {
   if (cash >= storageUpgradeCost) {
     cash -= storageUpgradeCost;
     storageCapacity += 100;
-    storageUpgradeCost += 500;
-    logMessage(`Storage upgraded to ${storageCapacity} units.`);
+    storageUpgradeCost = Math.floor(storageUpgradeCost * 1.5); // Increment cost by 50%
+    logMessage(`Storage upgraded to ${storageCapacity} units. Next upgrade costs $${storageUpgradeCost}.`);
   } else {
     logMessage("Not enough cash to upgrade storage.");
   }
+  console.log(`DEBUG: Current storage: ${storageCapacity}, Next cost: ${storageUpgradeCost}, Cash: ${cash}`);
   updateUI();
 }
 
@@ -214,7 +215,6 @@ function renderTables() {
         <td>${profitLossText}</td>
         <td>
           <button onclick="buyDrug('${drug.name}', 1)">Buy 1</button>
-          <button onclick="buyDrug('${drug.name}', 10)">Buy 10</button>
           <button onclick="buyMaxDrug('${drug.name}')">Buy Max</button>
           <button onclick="sellDrug('${drug.name}', 1)">Sell 1</button>
           <button onclick="sellAllDrug('${drug.name}')">Sell All</button>
